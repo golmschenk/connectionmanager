@@ -18,6 +18,12 @@ class VirtualMachine:
 
     @classmethod
     def list_from_azure(cls):
+        """
+        Creates a list of VirtualMachines from the Azure account.
+
+        :return: The list of VirtualMachines.
+        :rtype: list[VirtualMachine]
+        """
         vm_list_json = cls.attain_json_from_azure_vm_list()
         virtual_machine_json_dict_list = json.loads(vm_list_json)
         virtual_machines = []
@@ -27,6 +33,12 @@ class VirtualMachine:
 
     @classmethod
     def attain_json_from_azure_vm_list(cls):
+        """
+        Retrieves the string for the JSON from the Azure `az vm list` command. Checks that the user is logged in.
+
+        :return: The JSON string.
+        :rtype: str
+        """
         vm_list_completed_process = run(['az', 'vm', 'list'], stdout=PIPE, stderr=PIPE, encoding='utf-8')
         if vm_list_completed_process.stderr:
             print('Error retrieving virtual machine list:')
@@ -40,6 +52,14 @@ class VirtualMachine:
 
     @classmethod
     def from_azure_list_json_dict(cls, virtual_machine_json_dict):
+        """
+        Creates a VirtualMachine from an Azure JSON entry.
+
+        :param virtual_machine_json_dict: The dictionary from the Azure JSON.
+        :type virtual_machine_json_dict: dict[]
+        :return: The new virtual machine.
+        :rtype: VirtualMachine
+        """
         id_ = virtual_machine_json_dict['id']
         name = virtual_machine_json_dict['name']
         virtual_machine = cls(id_=id_, name=name)
@@ -49,6 +69,9 @@ class VirtualMachine:
         return virtual_machine
 
     def obtain_azure_state(self):
+        """
+        Retrieves the power state of the virtual machine and sets the attribute.
+        """
         completed_process = run(['az', 'vm', 'get-instance-view', '--ids', self.id], stdout=PIPE, stderr=PIPE,
                                 encoding='utf-8')
         json_string = completed_process.stdout
@@ -59,6 +82,9 @@ class VirtualMachine:
         )
 
     def obtain_azure_ip(self):
+        """
+        Retrieves the ip of the virtual machine and sets the attribute.
+        """
         completed_process = run(['az', 'vm', 'list-ip-addresses', '--ids', self.id], stdout=PIPE, stderr=PIPE,
                                 encoding='utf-8')
         json_string = completed_process.stdout
